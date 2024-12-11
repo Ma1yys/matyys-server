@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Klikací hra - Sušenka (Nekonečno)</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; /* Zarovnání textu nahoře */
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f3f3f3;
+            overflow: hidden; /* Zabraňuje posouvání okna */
+        }
+        h1 {
+            color: #333;
+        }
+        #score {
+            font-size: 1.5em;
+            color: #007BFF;
+        }
+        #cookieButton {
+            width: 120px; /* Velikost sušenky */
+            height: 120px; /* Velikost sušenky */
+            border: none;
+            border-radius: 50%; /* Kulaté tlačítko */
+            background-color: #D2B48C; /* Světle hnědá sušenka */
+            font-size: 1em;
+            color: white;
+            cursor: pointer;
+            position: absolute; /* Abychom mohli posouvat tlačítko */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Přidání stínu pro efekt sušenky */
+            background-image: radial-gradient(circle, #8B4513 15%, transparent 15%); /* Kousky čokolády zvětšené */
+            background-size: 25px 25px; /* Velikost kousků čokolády */
+        }
+    </style>
+</head>
+<body>
+    <h1>Klikací hra - Sušenka</h1>
+    <div>Skóre: <span id="score">0</span></div>
+    <button id="cookieButton" onclick="increaseScore()">Klikni!</button>
+
+    <script>
+        let score = 0;
+        let isGameRunning = false;
+
+        function startGame() {
+            if (isGameRunning) return;
+            score = 0;
+            document.getElementById("score").textContent = score;
+            isGameRunning = true;
+
+            // Nastavení výchozí pozice sušenky pod veškerým textem
+            const button = document.getElementById("cookieButton");
+            button.style.left = `50%`;
+            button.style.top = `calc(100vh - 150px)`; // Umístění sušenky dolů pod text
+
+            moveButton(); // Přesunout tlačítko
+        }
+
+        function increaseScore() {
+            if (isGameRunning) {
+                score++;
+                document.getElementById("score").textContent = score;
+                moveButton(); // Přesunout tlačítko po kliknutí
+            }
+        }
+
+        function moveButton() {
+            const button = document.getElementById("cookieButton");
+            const maxX = window.innerWidth - button.offsetWidth;
+            const maxY = window.innerHeight - button.offsetHeight;
+
+            let randomX, randomY;
+            do {
+                // Generování náhodné pozice pro tlačítko
+                randomX = Math.random() * maxX;
+                randomY = Math.random() * (maxY - 150); // Zajištění, že se sušenka nevejde do oblasti textu
+
+            } while (
+                randomX < 0 || randomX > maxX || randomY < 0 || randomY > maxY
+            );
+
+            button.style.left = `${randomX}px`;
+            button.style.top = `${randomY}px`;
+        }
+
+        // Přidání klikací funkce na tlačítko během hry
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelector("button").addEventListener("click", startGame);
+        });
+    </script>
+</body>
+</html>

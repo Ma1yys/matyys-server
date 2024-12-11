@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Opsání písmen a čísel s odpočtem</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #e8f0fe;
+        }
+        .letters {
+            font-size: 48px; /* Zvětšení textu */
+            color: red; /* Červená barva */
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Přidání stínu textu */
+        }
+        .message, .score, .timer {
+            font-size: 48px; /* Zvětšení textu */
+            color: black; /* Černá barva */
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Přidání stínu textu */
+        }
+      
+        input {
+            font-size: 24px; /* Zvětšení textu */
+            padding: 10px;
+            margin: 10px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            font-size: 24px; /* Zvětšení textu */
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: #28a745; /* Zelené pozadí */
+            color: white; /* Bílý text */
+            border: none;
+            border-radius: 5px; /* Zaoblené rohy */
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #218838; /* Tmavší zelená při najetí */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="letters" id="letters">Znaky se zobrazí zde!</div>
+    <div class="timer" id="timer">Odpočet: 10 s</div>
+    <input type="text" id="userInput" placeholder="Opíš znaky zde" autocomplete="off" disabled>
+    <button id="startButton" onclick="startGame()">Začít hru</button>
+    <div class="message" id="message"></div>
+    <div class="score" id="score">Body: 0</div>
+
+    <script>
+        let score = 0;
+        let countdownInterval;
+        let gameStarted = false;
+        let messageTimeout;
+        const lettersDiv = document.getElementById("letters");
+        const timerDiv = document.getElementById("timer");
+        const messageDiv = document.getElementById("message");
+        const scoreDiv = document.getElementById("score");
+        const userInput = document.getElementById("userInput");
+        const startButton = document.getElementById("startButton");
+
+        // Upravena pole znaků obsahující velká a malá písmena
+        const charsArray = "ABCDEFGHJKMNOPQRSTUVWXYZabcdefghjkmnopqrstuvwxyz0123456789";
+
+        function startGame() {
+            // Resetuj skóre
+            score = 0;
+            scoreDiv.textContent = `Body: ${score}`;
+
+            if (gameStarted) return;
+
+            userInput.value = "";
+            messageDiv.textContent = "";
+            userInput.disabled = false;
+            userInput.focus();
+            startButton.disabled = true; // Deaktivuj tlačítko
+            gameStarted = true;
+
+            generateRandomChars();
+            startCountdown();
+        }
+
+        function generateRandomChars() {
+            const randomChars = Array.from({length: 5}, () => charsArray[Math.floor(Math.random() * charsArray.length)]).join("");
+            lettersDiv.textContent = randomChars;
+        }
+
+        function startCountdown() {
+            clearInterval(countdownInterval);
+            let timeLeft = 10;
+            timerDiv.textContent = `Odpočet: ${timeLeft} s`;
+
+            countdownInterval = setInterval(() => {
+                timeLeft--;
+                timerDiv.textContent = `Odpočet: ${timeLeft} s`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    checkAnswer();
+                }
+            }, 1000);
+        }
+
+        function checkAnswer() {
+            clearInterval(countdownInterval); // Zastav odpočet po kontrole
+
+            const correctAnswer = lettersDiv.textContent;
+            const userAnswer = userInput.value; // Nepřeváděj na velká písmena
+
+            if (userAnswer === correctAnswer) {
+                messageDiv.textContent = "Správně! Získal jsi 1 bod.";
+                score++;
+                scoreDiv.textContent = `Body: ${score}`;
+                userInput.value = "";  // Vyčisti vstupní pole
+
+                // Zobraz zprávu na 2,5 sekundy a pak pokračuj na další kolo
+                messageTimeout = setTimeout(() => {
+                    messageDiv.textContent = "";
+                    generateRandomChars();
+                    startCountdown();
+                }, 2500);
+            } else {
+                messageDiv.textContent = `Špatně! Správná odpověď byla: ${correctAnswer}`;
+                lettersDiv.textContent = "Znaky se zde zobrazí";
+                userInput.disabled = true;
+                startButton.disabled = false; // Aktivuj tlačítko
+                gameStarted = false;
+            }
+        }
+
+        // Spusť kontrolu při stisknutí klávesy Enter
+        userInput.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+                checkAnswer();
+            }
+        });
+    </script>
+
+</body>
+</html>
